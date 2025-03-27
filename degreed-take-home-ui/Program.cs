@@ -1,4 +1,5 @@
 using degreed_core.Clients;
+using degreed_core.Services;
 using degreed_take_home_ui.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddRazorComponents()
 
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(CanHazApiClient.BASE_ADDRESS) });
 builder.Services.AddScoped<ICanHazApiClient, CanHazApiClient>();
+builder.Services.AddScoped<IJokeService, JokeService>();
 
 var app = builder.Build();
 

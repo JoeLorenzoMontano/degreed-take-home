@@ -1,9 +1,8 @@
 ﻿@page "/"
-@using degreed_core.Clients
-@using Microsoft.AspNetCore.Components.Web
-@using degreed_core.Clients.Models
+@using degreed_core.Services
 @using degreed_core.Utils
-@inject ICanHazApiClient Client
+@using Microsoft.AspNetCore.Components.Web
+@inject IJokeService JokeService
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
@@ -35,28 +34,28 @@
                 </div>
             </div>
 
-            @if (searchResult != null && groupedJokes != null)
+            @if (viewModel != null)
             {
                 <ul class="nav nav-tabs mb-3" id="jokesTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-jokes" type="button" role="tab" aria-controls="all-jokes" aria-selected="true">All (@searchResult.total_jokes)</button>
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-jokes" type="button" role="tab" aria-controls="all-jokes" aria-selected="true">All (@viewModel.TotalJokes)</button>
                     </li>
-                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Short))
+                    @if (viewModel.ShortJokes.Any())
                     {
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="short-tab" data-bs-toggle="tab" data-bs-target="#short-jokes" type="button" role="tab" aria-controls="short-jokes" aria-selected="false">Short (@groupedJokes[Extensions.WordCountBucket.Short].Count)</button>
+                            <button class="nav-link" id="short-tab" data-bs-toggle="tab" data-bs-target="#short-jokes" type="button" role="tab" aria-controls="short-jokes" aria-selected="false">Short (@viewModel.ShortJokes.Count)</button>
                         </li>
                     }
-                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Medium))
+                    @if (viewModel.MediumJokes.Any())
                     {
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="medium-tab" data-bs-toggle="tab" data-bs-target="#medium-jokes" type="button" role="tab" aria-controls="medium-jokes" aria-selected="false">Medium (@groupedJokes[Extensions.WordCountBucket.Medium].Count)</button>
+                            <button class="nav-link" id="medium-tab" data-bs-toggle="tab" data-bs-target="#medium-jokes" type="button" role="tab" aria-controls="medium-jokes" aria-selected="false">Medium (@viewModel.MediumJokes.Count)</button>
                         </li>
                     }
-                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Long))
+                    @if (viewModel.LongJokes.Any())
                     {
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="long-tab" data-bs-toggle="tab" data-bs-target="#long-jokes" type="button" role="tab" aria-controls="long-jokes" aria-selected="false">Long (@groupedJokes[Extensions.WordCountBucket.Long].Count)</button>
+                            <button class="nav-link" id="long-tab" data-bs-toggle="tab" data-bs-target="#long-jokes" type="button" role="tab" aria-controls="long-jokes" aria-selected="false">Long (@viewModel.LongJokes.Count)</button>
                         </li>
                     }
                 </ul>
@@ -71,10 +70,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var joke in searchResult.results.Take(30))
+                                    @foreach (var joke in viewModel.Jokes)
                                     {
                                         <tr>
-                                            <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                            <td>@((MarkupString)joke.HighlightedText)</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -82,7 +81,7 @@
                         </div>
                     </div>
 
-                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Short))
+                    @if (viewModel.ShortJokes.Any())
                     {
                         <div class="tab-pane fade" id="short-jokes" role="tabpanel" aria-labelledby="short-tab">
                             <div class="table-responsive">
@@ -93,10 +92,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var joke in groupedJokes[Extensions.WordCountBucket.Short])
+                                        @foreach (var joke in viewModel.ShortJokes)
                                         {
                                             <tr>
-                                                <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                                <td>@((MarkupString)joke.HighlightedText)</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -105,7 +104,7 @@
                         </div>
                     }
                     
-                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Medium))
+                    @if (viewModel.MediumJokes.Any())
                     {
                         <div class="tab-pane fade" id="medium-jokes" role="tabpanel" aria-labelledby="medium-tab">
                             <div class="table-responsive">
@@ -116,10 +115,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var joke in groupedJokes[Extensions.WordCountBucket.Medium])
+                                        @foreach (var joke in viewModel.MediumJokes)
                                         {
                                             <tr>
-                                                <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                                <td>@((MarkupString)joke.HighlightedText)</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -128,7 +127,7 @@
                         </div>
                     }
                     
-                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Long))
+                    @if (viewModel.LongJokes.Any())
                     {
                         <div class="tab-pane fade" id="long-jokes" role="tabpanel" aria-labelledby="long-tab">
                             <div class="table-responsive">
@@ -139,10 +138,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var joke in groupedJokes[Extensions.WordCountBucket.Long])
+                                        @foreach (var joke in viewModel.LongJokes)
                                         {
                                             <tr>
-                                                <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                                <td>@((MarkupString)joke.HighlightedText)</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -154,30 +153,30 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div>
-                        Showing page @searchResult.current_page of @searchResult.total_pages 
-                        (@searchResult.total_jokes total jokes)
+                        Showing page @viewModel.CurrentPage of @viewModel.TotalPages 
+                        (@viewModel.TotalJokes total jokes)
                     </div>
                     <div>
                         <nav aria-label="Page navigation">
                             <ul class="pagination">
-                                <li class="page-item @(searchResult.current_page <= 1 ? "disabled" : "")">
-                                    <button class="page-link" @onclick="() => GoToPage(1)" disabled="@(searchResult.current_page <= 1)">First</button>
+                                <li class="page-item @(viewModel.CurrentPage <= 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(1)" disabled="@(viewModel.CurrentPage <= 1)">First</button>
                                 </li>
-                                <li class="page-item @(searchResult.current_page <= 1 ? "disabled" : "")">
-                                    <button class="page-link" @onclick="() => GoToPage(searchResult.current_page - 1)" disabled="@(searchResult.current_page <= 1)">Previous</button>
+                                <li class="page-item @(viewModel.CurrentPage <= 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(viewModel.CurrentPage - 1)" disabled="@(viewModel.CurrentPage <= 1)">Previous</button>
                                 </li>
-                                @for (int i = Math.Max(1, searchResult.current_page - 2); i <= Math.Min(searchResult.total_pages, searchResult.current_page + 2); i++)
+                                @for (int i = Math.Max(1, viewModel.CurrentPage - 2); i <= Math.Min(viewModel.TotalPages, viewModel.CurrentPage + 2); i++)
                                 {
                                     int pageNumber = i;
-                                    <li class="page-item @(searchResult.current_page == pageNumber ? "active" : "")">
+                                    <li class="page-item @(viewModel.CurrentPage == pageNumber ? "active" : "")">
                                         <button class="page-link" @onclick="() => GoToPage(pageNumber)">@pageNumber</button>
                                     </li>
                                 }
-                                <li class="page-item @(searchResult.current_page >= searchResult.total_pages ? "disabled" : "")">
-                                    <button class="page-link" @onclick="() => GoToPage(searchResult.current_page + 1)" disabled="@(searchResult.current_page >= searchResult.total_pages)">Next</button>
+                                <li class="page-item @(viewModel.CurrentPage >= viewModel.TotalPages ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(viewModel.CurrentPage + 1)" disabled="@(viewModel.CurrentPage >= viewModel.TotalPages)">Next</button>
                                 </li>
-                                <li class="page-item @(searchResult.current_page >= searchResult.total_pages ? "disabled" : "")">
-                                    <button class="page-link" @onclick="() => GoToPage(searchResult.total_pages)" disabled="@(searchResult.current_page >= searchResult.total_pages)">Last</button>
+                                <li class="page-item @(viewModel.CurrentPage >= viewModel.TotalPages ? "disabled" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(viewModel.TotalPages)" disabled="@(viewModel.CurrentPage >= viewModel.TotalPages)">Last</button>
                                 </li>
                             </ul>
                         </nav>
@@ -191,9 +190,7 @@
 @code {
     private string joke;
     private string searchTerm = "";
-    private SearchResult searchResult;
-    private IDictionary<Extensions.WordCountBucket, List<JokeResult>> groupedJokes;
-    private int currentPage = 1;
+    private JokeSearchViewModel viewModel;
     private const int PageSize = 30;
 
     protected override async Task OnInitializedAsync() {
@@ -201,41 +198,25 @@
     }
 
     private async Task GetRandomJoke() {
-        var jokeResult = await Client.Random();
+        var jokeResult = await JokeService.GetRandomJoke();
         joke = jokeResult?.joke ?? "There was an error retrieving the random joke...";
     }
 
     private async Task SearchJokes() {
-        if (string.IsNullOrWhiteSpace(searchTerm)) {
-            searchTerm = "";
-        }
-        
-        currentPage = 1;
-        await LoadPage(currentPage);
+        await LoadPage(1);
     }
     
     private async Task GoToPage(int page) {
-        currentPage = page;
         await LoadPage(page);
     }
     
     private async Task LoadPage(int page) {
-        searchResult = await Client.Search(page, PageSize, searchTerm);
-        if (searchResult != null) {
-            groupedJokes = searchResult.GroupByLength();
-        }
+        viewModel = await JokeService.SearchJokes(searchTerm, page, PageSize);
     }
     
     private async Task HandleKeyPress(KeyboardEventArgs e) {
         if (e.Key == "Enter") {
             await SearchJokes();
-        }
-    }
-
-    private async Task GetSearchResults() {
-        searchResult = await Client.Search(1, PageSize);
-        if (searchResult != null) {
-            groupedJokes = searchResult.GroupByLength();
         }
     }
 }
