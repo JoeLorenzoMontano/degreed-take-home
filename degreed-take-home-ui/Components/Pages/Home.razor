@@ -1,6 +1,9 @@
 ﻿@page "/"
 @using degreed_core.Clients
+@using Microsoft.AspNetCore.Components.Web
+@using degreed_core.Clients.Models
 @inject ICanHazApiClient Client
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
@@ -9,17 +12,33 @@
 <button @onclick="GetRandomJoke">Get Random Joke</button>
 <p>@joke</p>
 
+
+<button @onclick="GetSearchResults">Search Jokes</button>
+@if(searchResult != null){
+  <table>
+    @foreach (var joke in searchResult.results)
+    {
+      <tr>
+        <td> @joke.joke </td>
+      </tr>
+    }
+  </table>
+}
+
 @code {
   private string joke;
+  private SearchResult searchResult;
 
-  protected override async Task OnInitializedAsync()
-  {
+  protected override async Task OnInitializedAsync() {
     joke = "Click the button to get a random joke!";
   }
 
-  private async Task GetRandomJoke()
-  {
+  private async Task GetRandomJoke() {
     var jokeResult = await Client.Random();
-    joke = jokeResult?.joke;
+    joke = jokeResult?.joke ?? "There was an error retrieving the random joke...";
+  }
+
+  private async Task GetSearchResults() {
+    searchResult = await Client.Search();
   }
 }
