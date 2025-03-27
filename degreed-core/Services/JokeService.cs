@@ -26,47 +26,64 @@ namespace degreed.Services {
       if(searchResult == null)
         return new JokeSearchViewModel();
 
+      // Create a dictionary of highlighted jokes by id to avoid highlighting the same joke multiple times
+      var highlightedJokesDict = searchResult.results
+          .ToDictionary(
+              joke => joke.id,
+              joke => new HighlightedJoke {
+                Id = joke.id,
+                OriginalJoke = joke.joke,
+                HighlightedText = joke.joke.HighlightSearchTerm(searchTerm)
+              }
+          );
+
       // Group jokes by length
       var groupedJokes = searchResult.GroupByLength();
 
-      // Prepare highlighted jokes for display
-      var highlightedJokes = searchResult.results
-          .Take(pageSize)
-          .Select(joke => new HighlightedJoke {
-            Id = joke.id,
-            OriginalJoke = joke.joke,
-            HighlightedText = joke.joke.HighlightSearchTerm(searchTerm)
-          })
-          .ToList();
-
-      // Create view model
+      // Create view model using the dictionary to avoid re-highlighting
       var viewModel = new JokeSearchViewModel {
         SearchTerm = searchTerm,
         TotalJokes = searchResult.total_jokes,
         CurrentPage = searchResult.current_page,
         TotalPages = searchResult.total_pages,
         PageSize = pageSize,
-        Jokes = highlightedJokes,
-        ShortJokes = groupedJokes.ContainsKey(Extensions.WordCountBucket.Short)
-              ? ConvertToHighlightedJokes(groupedJokes[Extensions.WordCountBucket.Short], searchTerm)
-              : new List<HighlightedJoke>(),
-        MediumJokes = groupedJokes.ContainsKey(Extensions.WordCountBucket.Medium)
-              ? ConvertToHighlightedJokes(groupedJokes[Extensions.WordCountBucket.Medium], searchTerm)
-              : new List<HighlightedJoke>(),
-        LongJokes = groupedJokes.ContainsKey(Extensions.WordCountBucket.Long)
-              ? ConvertToHighlightedJokes(groupedJokes[Extensions.WordCountBucket.Long], searchTerm)
-              : new List<HighlightedJoke>()
+        // Use the highlighted jokes we already created
+        Jokes = searchResult.results
+            .Take(pageSize)
+            .Select(joke => highlightedJokesDict[joke.id])
+            .ToList(),
+        // Map from grouped jokes to highlighted jokes using our dictionary
+        ShortJokes = GetHighlightedJokesFromGroup(
+            groupedJokes, 
+            Extensions.WordCountBucket.Short, 
+            highlightedJokesDict
+        ),
+        MediumJokes = GetHighlightedJokesFromGroup(
+            groupedJokes, 
+            Extensions.WordCountBucket.Medium,
+            highlightedJokesDict
+        ),
+        LongJokes = GetHighlightedJokesFromGroup(
+            groupedJokes, 
+            Extensions.WordCountBucket.Long,
+            highlightedJokesDict
+        )
       };
 
       return viewModel;
     }
 
-    private List<HighlightedJoke> ConvertToHighlightedJokes(List<JokeResult> jokes, string searchTerm) {
-      return jokes.Select(joke => new HighlightedJoke {
-        Id = joke.id,
-        OriginalJoke = joke.joke,
-        HighlightedText = joke.joke.HighlightSearchTerm(searchTerm)
-      }).ToList();
+    private List<HighlightedJoke> GetHighlightedJokesFromGroup(
+        IDictionary<Extensions.WordCountBucket, List<JokeResult>> groupedJokes,
+        Extensions.WordCountBucket bucket,
+        Dictionary<string, HighlightedJoke> highlightedJokesDict)
+    {
+        if (!groupedJokes.ContainsKey(bucket))
+            return new List<HighlightedJoke>();
+
+        return groupedJokes[bucket]
+            .Select(joke => highlightedJokesDict[joke.id])
+            .ToList();
     }
   }
 }
