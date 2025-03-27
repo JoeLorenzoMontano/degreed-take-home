@@ -39,7 +39,7 @@
             {
                 <ul class="nav nav-tabs mb-3" id="jokesTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-jokes" type="button" role="tab" aria-controls="all-jokes" aria-selected="true">All (@searchResult.results.Count)</button>
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-jokes" type="button" role="tab" aria-controls="all-jokes" aria-selected="true">All (@searchResult.total_jokes)</button>
                     </li>
                     @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Short))
                     {
