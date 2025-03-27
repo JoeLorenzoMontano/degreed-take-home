@@ -3,6 +3,6 @@
 namespace degreed_core.Clients {
   public interface ICanHazApiClient {
     Task<JokeResult?> Random();
-    Task<SearchResult?> Search(params string[] searchTerms);
+    Task<SearchResult?> Search(int page = 1, int limit = 20, params string[] searchTerms);
   }
 }

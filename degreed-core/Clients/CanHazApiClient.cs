@@ -24,10 +24,10 @@ namespace degreed_core.Clients {
       return null;
     }
 
-    public async Task<SearchResult?> Search(params string[] searchTerms) {
+    public async Task<SearchResult?> Search(int page = 1, int limit = 20, params string[] searchTerms) {
       try {
         string term = string.Join(" ", searchTerms);
-        return await _httpClient.GetFromJsonAsync<SearchResult>($"/search?term={Uri.EscapeDataString(term)}");
+        return await _httpClient.GetFromJsonAsync<SearchResult>($"/search?term={Uri.EscapeDataString(term)}&page={page}&limit={limit}");
       }
       catch(Exception ex) {
         Console.Error.WriteLine(ex.Message);
