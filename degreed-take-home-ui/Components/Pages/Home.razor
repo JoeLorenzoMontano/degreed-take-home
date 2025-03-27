@@ -1,0 +1,25 @@
+﻿@page "/"
+@using degreed_core.Clients
+@inject ICanHazApiClient Client
+
+<PageTitle>Home</PageTitle>
+
+<h1>Degreed - Take Home Assignment</h1>
+
+<button @onclick="GetRandomJoke">Get Random Joke</button>
+<p>@joke</p>
+
+@code {
+  private string joke;
+
+  protected override async Task OnInitializedAsync()
+  {
+    joke = "Click the button to get a random joke!";
+  }
+
+  private async Task GetRandomJoke()
+  {
+    var jokeResult = await Client.Random();
+    joke = jokeResult?.joke;
+  }
+}

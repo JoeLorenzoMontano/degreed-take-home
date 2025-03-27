@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35728.132 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "degreed-core", ".\degreed-core\degreed-core.csproj", "{7D5D969C-ADC0-477B-B597-411994F94C36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "degreed-console", ".\degreed-console-app\degreed-console.csproj", "{CAD07F7E-2977-4932-9AB1-CE473D0FAC3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "degreed-ui", ".\degreed-take-home-ui\degreed-ui.csproj", "{A3AB4683-C6E1-4A29-B113-5DD91EB83072}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7D5D969C-ADC0-477B-B597-411994F94C36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D5D969C-ADC0-477B-B597-411994F94C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D5D969C-ADC0-477B-B597-411994F94C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D5D969C-ADC0-477B-B597-411994F94C36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAD07F7E-2977-4932-9AB1-CE473D0FAC3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAD07F7E-2977-4932-9AB1-CE473D0FAC3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAD07F7E-2977-4932-9AB1-CE473D0FAC3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAD07F7E-2977-4932-9AB1-CE473D0FAC3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3AB4683-C6E1-4A29-B113-5DD91EB83072}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3AB4683-C6E1-4A29-B113-5DD91EB83072}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3AB4683-C6E1-4A29-B113-5DD91EB83072}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3AB4683-C6E1-4A29-B113-5DD91EB83072}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
