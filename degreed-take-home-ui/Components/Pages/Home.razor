@@ -2,6 +2,7 @@
 @using degreed_core.Clients
 @using Microsoft.AspNetCore.Components.Web
 @using degreed_core.Clients.Models
+@using degreed_core.Utils
 @inject ICanHazApiClient Client
 @rendermode InteractiveServer
 
@@ -34,27 +35,124 @@
                 </div>
             </div>
 
-            @if (searchResult != null)
+            @if (searchResult != null && groupedJokes != null)
             {
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>Joke</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var joke in searchResult.results)
-                            {
-                                <tr>
-                                    <td>@joke.joke</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <ul class="nav nav-tabs mb-3" id="jokesTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-jokes" type="button" role="tab" aria-controls="all-jokes" aria-selected="true">All (@searchResult.results.Count)</button>
+                    </li>
+                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Short))
+                    {
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="short-tab" data-bs-toggle="tab" data-bs-target="#short-jokes" type="button" role="tab" aria-controls="short-jokes" aria-selected="false">Short (@groupedJokes[Extensions.WordCountBucket.Short].Count)</button>
+                        </li>
+                    }
+                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Medium))
+                    {
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="medium-tab" data-bs-toggle="tab" data-bs-target="#medium-jokes" type="button" role="tab" aria-controls="medium-jokes" aria-selected="false">Medium (@groupedJokes[Extensions.WordCountBucket.Medium].Count)</button>
+                        </li>
+                    }
+                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Long))
+                    {
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="long-tab" data-bs-toggle="tab" data-bs-target="#long-jokes" type="button" role="tab" aria-controls="long-jokes" aria-selected="false">Long (@groupedJokes[Extensions.WordCountBucket.Long].Count)</button>
+                        </li>
+                    }
+                </ul>
+
+                <div class="tab-content" id="jokesTabContent">
+                    <div class="tab-pane fade show active" id="all-jokes" role="tabpanel" aria-labelledby="all-tab">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Joke</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var joke in searchResult.results.Take(30))
+                                    {
+                                        <tr>
+                                            <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Short))
+                    {
+                        <div class="tab-pane fade" id="short-jokes" role="tabpanel" aria-labelledby="short-tab">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Joke (Less than 10 words)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var joke in groupedJokes[Extensions.WordCountBucket.Short])
+                                        {
+                                            <tr>
+                                                <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Medium))
+                    {
+                        <div class="tab-pane fade" id="medium-jokes" role="tabpanel" aria-labelledby="medium-tab">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Joke (10-19 words)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var joke in groupedJokes[Extensions.WordCountBucket.Medium])
+                                        {
+                                            <tr>
+                                                <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (groupedJokes.ContainsKey(Extensions.WordCountBucket.Long))
+                    {
+                        <div class="tab-pane fade" id="long-jokes" role="tabpanel" aria-labelledby="long-tab">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Joke (20+ words)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var joke in groupedJokes[Extensions.WordCountBucket.Long])
+                                        {
+                                            <tr>
+                                                <td>@((MarkupString)joke.joke.HighlightSearchTerm(searchTerm))</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center mt-3">
                     <div>
                         Showing page @searchResult.current_page of @searchResult.total_pages 
                         (@searchResult.total_jokes total jokes)
@@ -94,8 +192,9 @@
     private string joke;
     private string searchTerm = "";
     private SearchResult searchResult;
+    private IDictionary<Extensions.WordCountBucket, List<JokeResult>> groupedJokes;
     private int currentPage = 1;
-    private const int PageSize = 10;
+    private const int PageSize = 30;
 
     protected override async Task OnInitializedAsync() {
         joke = "Click the button to get a random joke!";
@@ -108,7 +207,7 @@
 
     private async Task SearchJokes() {
         if (string.IsNullOrWhiteSpace(searchTerm)) {
-            searchTerm = ""; // Search with empty string to get all jokes
+            searchTerm = "";
         }
         
         currentPage = 1;
@@ -122,6 +221,9 @@
     
     private async Task LoadPage(int page) {
         searchResult = await Client.Search(page, PageSize, searchTerm);
+        if (searchResult != null) {
+            groupedJokes = searchResult.GroupByLength();
+        }
     }
     
     private async Task HandleKeyPress(KeyboardEventArgs e) {
@@ -132,5 +234,8 @@
 
     private async Task GetSearchResults() {
         searchResult = await Client.Search(1, PageSize);
+        if (searchResult != null) {
+            groupedJokes = searchResult.GroupByLength();
+        }
     }
 }

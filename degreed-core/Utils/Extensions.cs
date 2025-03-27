@@ -1,6 +1,7 @@
 ﻿using degreed_core.Clients.Models;
+using System.Text.RegularExpressions;
 
-namespace degreed_take_home_assignment.Utils {
+namespace degreed_core.Utils {
   public static class Extensions {
     public static IDictionary<WordCountBucket, List<JokeResult>> GroupByLength(this SearchResult searchResult) {
       if(searchResult?.results == null) {
@@ -9,6 +10,14 @@ namespace degreed_take_home_assignment.Utils {
       return searchResult.results
           .GroupBy(joke => GetBucketLabel(CountWords(joke.joke)))
           .ToDictionary(g => g.Key, g => g.ToList());
+    }
+
+    public static string HighlightSearchTerm(this string text, string searchTerm) {
+      if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(searchTerm))
+        return text;
+
+      string pattern = $"({Regex.Escape(searchTerm)})";
+      return Regex.Replace(text, pattern, "<strong>$1</strong>", RegexOptions.IgnoreCase);
     }
 
     private static int CountWords(string text) {
