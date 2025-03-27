@@ -1,5 +1,6 @@
-using degreed_core.Clients;
-using degreed_core.Services;
+using degreed.Clients;
+using degreed.Services;
+using degreed.Services.Interfaces;
 using degreed_take_home_ui.Components;
 
 var builder = WebApplication.CreateBuilder(args);

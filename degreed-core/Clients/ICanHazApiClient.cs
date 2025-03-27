@@ -1,6 +1,6 @@
-﻿using degreed_core.Clients.Models;
+﻿using degreed.Clients.Models;
 
-namespace degreed_core.Clients {
+namespace degreed.Clients {
   public interface ICanHazApiClient {
     Task<JokeResult?> Random();
     Task<SearchResult?> Search(int page = 1, int limit = 20, params string[] searchTerms);

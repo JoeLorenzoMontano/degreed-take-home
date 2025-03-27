@@ -1,7 +1,7 @@
-﻿using degreed_core.Clients.Models;
+﻿using degreed.Clients.Models;
 using System.Net.Http.Json;
 
-namespace degreed_core.Clients {
+namespace degreed.Clients {
   public class CanHazApiClient : ICanHazApiClient {
     public const string BASE_ADDRESS = "https://icanhazdadjoke.com/";
     private HttpClient _httpClient;

@@ -1,4 +1,4 @@
-﻿namespace degreed_core.Clients.Models {
+﻿namespace degreed.Clients.Models {
   public class SearchResult {
     public int current_page { get; set; }
     public int limit { get; set; }

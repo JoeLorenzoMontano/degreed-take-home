@@ -1,7 +1,7 @@
-﻿using degreed_core.Clients.Models;
+﻿using degreed.Clients.Models;
 using System.Text.RegularExpressions;
 
-namespace degreed_core.Utils {
+namespace degreed.Utils {
   public static class Extensions {
     public static IDictionary<WordCountBucket, List<JokeResult>> GroupByLength(this SearchResult searchResult) {
       if(searchResult?.results == null) {
