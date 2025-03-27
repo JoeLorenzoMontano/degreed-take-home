@@ -16,8 +16,15 @@ namespace degreed_core.Utils {
       if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(searchTerm))
         return text;
 
-      string pattern = $"({Regex.Escape(searchTerm)})";
-      return Regex.Replace(text, pattern, "<strong>$1</strong>", RegexOptions.IgnoreCase);
+      // Split search term into words and highlight each one
+      foreach (var word in searchTerm.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+      {
+        if (word.Length < 2) continue; // Skip very short words
+        string pattern = $"\\b({Regex.Escape(word)})\\b";
+        text = Regex.Replace(text, pattern, "<strong>$1</strong>", RegexOptions.IgnoreCase);
+      }
+      
+      return text;
     }
 
     private static int CountWords(string text) {
