@@ -34,10 +34,18 @@ The solution consists of three projects:
 
 ## Getting Started
 
+### Running with Visual Studio
 1. Clone the repository
 2. Open the solution in Visual Studio
 3. Build and run the degreed-take-home-ui project to see the web interface
 4. Alternatively, run the degreed-console-app for a simple console demo
+
+### Running with Docker
+1. Clone the repository
+2. Open a terminal in the root directory
+3. Run `docker-compose up -d` to build and start the application
+4. Access the web interface at http://localhost:8080
+5. Run `docker-compose down` to stop the application
 
 ## Technologies Used
 
@@ -45,3 +53,4 @@ The solution consists of three projects:
 - Blazor Server
 - Bootstrap for UI styling
 - HttpClient for API communication
+- Docker and Docker Compose for containerization
