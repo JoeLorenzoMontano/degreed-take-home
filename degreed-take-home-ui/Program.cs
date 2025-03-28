@@ -9,9 +9,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(CanHazApiClient.BASE_ADDRESS) });
+// Configure Redis cache if connection string is available
+var redisConnection = Environment.GetEnvironmentVariable("REDIS_CONNECTION") ?? 
+                     builder.Configuration["Redis:ConnectionString"];
+
+if (!string.IsNullOrEmpty(redisConnection))
+{
+    // Register Redis cache service
+    builder.Services.AddSingleton<ICacheService>(sp => new RedisCacheService(redisConnection));
+    Console.WriteLine($"Redis cache configured with connection: {redisConnection}");
+}
+else
+{
+    Console.WriteLine("Redis cache not configured. Running without caching.");
+}
+
+// Register API client and joke service
 builder.Services.AddScoped<ICanHazApiClient, CanHazApiClient>();
-builder.Services.AddScoped<IJokeService, JokeService>();
+builder.Services.AddScoped<IJokeService>(sp => {
+    var apiClient = sp.GetRequiredService<ICanHazApiClient>();
+    var cacheService = sp.GetService<ICacheService>(); // May be null if Redis is not configured
+    return new JokeService(apiClient, cacheService);
+});
 
 var app = builder.Build();
 
