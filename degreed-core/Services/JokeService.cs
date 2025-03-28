@@ -47,40 +47,14 @@ namespace degreed.Services {
         CurrentPage = searchResult.current_page,
         TotalPages = searchResult.total_pages,
         PageSize = pageSize,
-        // Use the highlighted jokes we already created
-        Jokes = searchResult.results
-            .Select(joke => highlightedJokesDict[joke.id])
-            .ToList(),
+        Jokes = [.. highlightedJokesDict.Values],
         // Map from grouped jokes to highlighted jokes using our dictionary
-        ShortJokes = GetHighlightedJokesFromGroup(
-            groupedJokes,
-            Extensions.WordCountBucket.Short,
-            highlightedJokesDict
-        ),
-        MediumJokes = GetHighlightedJokesFromGroup(
-            groupedJokes,
-            Extensions.WordCountBucket.Medium,
-            highlightedJokesDict
-        ),
-        LongJokes = GetHighlightedJokesFromGroup(
-            groupedJokes,
-            Extensions.WordCountBucket.Long,
-            highlightedJokesDict
-        )
+        ShortJokes = groupedJokes.GetHighlightedJokesFromGroup(Extensions.WordCountBucket.Short, highlightedJokesDict),
+        MediumJokes = groupedJokes.GetHighlightedJokesFromGroup(Extensions.WordCountBucket.Medium, highlightedJokesDict),
+        LongJokes = groupedJokes.GetHighlightedJokesFromGroup(Extensions.WordCountBucket.Long, highlightedJokesDict)
       };
 
       return viewModel;
-    }
-
-    private List<HighlightedJoke> GetHighlightedJokesFromGroup(
-        IDictionary<Extensions.WordCountBucket, List<JokeResult>> groupedJokes,
-        Extensions.WordCountBucket bucket,
-        Dictionary<string, HighlightedJoke> highlightedJokesDict) {
-      if(!groupedJokes.ContainsKey(bucket))
-        return [];
-      return groupedJokes[bucket]
-          .Select(joke => highlightedJokesDict[joke.id])
-          .ToList();
     }
   }
 }

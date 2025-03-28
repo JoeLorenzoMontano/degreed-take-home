@@ -1,4 +1,5 @@
 ﻿using degreed.Clients.Models;
+using degreed.Services.Models;
 using System.Text.RegularExpressions;
 
 namespace degreed.Utils {
@@ -25,6 +26,17 @@ namespace degreed.Utils {
       }
       
       return text;
+    }
+
+    public static List<HighlightedJoke> GetHighlightedJokesFromGroup(
+        this IDictionary<Extensions.WordCountBucket, List<JokeResult>> groupedJokes,
+        Extensions.WordCountBucket bucket,
+        Dictionary<string, HighlightedJoke> highlightedJokesDict) {
+      if(!groupedJokes.ContainsKey(bucket))
+        return [];
+      return groupedJokes[bucket]
+          .Select(joke => highlightedJokesDict[joke.id])
+          .ToList();
     }
 
     private static int CountWords(string text) {
