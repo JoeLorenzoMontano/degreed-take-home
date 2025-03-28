@@ -7,20 +7,34 @@ using degreed.Utils;
 namespace degreed.Services {
   public class JokeService : IJokeService {
     private readonly ICanHazApiClient _apiClient;
+    private readonly ICacheService? _cacheService;
+    private const int CACHE_EXPIRY_MINUTES = 15;
 
-    public JokeService(ICanHazApiClient apiClient) {
+    public JokeService(ICanHazApiClient apiClient, ICacheService? cacheService = null) {
       _apiClient = apiClient;
+      _cacheService = cacheService;
     }
 
     public async Task<JokeResult?> GetRandomJoke() {
       return await _apiClient.Random();
     }
 
-    public async Task<JokeSearchViewModel> SearchJokes(string searchTerm, int page = 1, int pageSize = 30) {
+    public async Task<JokeSearchViewModel?> SearchJokes(string searchTerm, int page = 1, int pageSize = 30) {
       // Default to empty string if search term is null or whitespace
       searchTerm = string.IsNullOrWhiteSpace(searchTerm) ? string.Empty : searchTerm;
 
-      // Get search results from API
+      // Create a cache key based on search parameters
+      string cacheKey = $"jokes:search:{searchTerm}:page:{page}:size:{pageSize}";
+
+      // Try to get data from cache first if cache is available
+      if (_cacheService != null) {
+        var cachedViewModel = await _cacheService.GetAsync<JokeSearchViewModel>(cacheKey);
+        if (cachedViewModel != null) {
+          return cachedViewModel;
+        }
+      }
+
+      // Cache miss or no cache service, get from API
       var searchResult = await _apiClient.Search(page, pageSize, searchTerm);
 
       if(searchResult == null)
@@ -53,6 +67,11 @@ namespace degreed.Services {
         MediumJokes = groupedJokes.GetHighlightedJokesFromGroup(Extensions.WordCountBucket.Medium, highlightedJokesDict),
         LongJokes = groupedJokes.GetHighlightedJokesFromGroup(Extensions.WordCountBucket.Long, highlightedJokesDict)
       };
+
+      // Store in cache if cache service is available
+      if (_cacheService != null) {
+        await _cacheService.SetAsync(cacheKey, viewModel, TimeSpan.FromMinutes(CACHE_EXPIRY_MINUTES));
+      }
 
       return viewModel;
     }
