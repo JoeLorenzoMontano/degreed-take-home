@@ -12,7 +12,7 @@ namespace degreed.Services {
       _apiClient = apiClient;
     }
 
-    public async Task<JokeResult> GetRandomJoke() {
+    public async Task<JokeResult?> GetRandomJoke() {
       return await _apiClient.Random();
     }
 
@@ -49,22 +49,21 @@ namespace degreed.Services {
         PageSize = pageSize,
         // Use the highlighted jokes we already created
         Jokes = searchResult.results
-            .Take(pageSize)
             .Select(joke => highlightedJokesDict[joke.id])
             .ToList(),
         // Map from grouped jokes to highlighted jokes using our dictionary
         ShortJokes = GetHighlightedJokesFromGroup(
-            groupedJokes, 
-            Extensions.WordCountBucket.Short, 
+            groupedJokes,
+            Extensions.WordCountBucket.Short,
             highlightedJokesDict
         ),
         MediumJokes = GetHighlightedJokesFromGroup(
-            groupedJokes, 
+            groupedJokes,
             Extensions.WordCountBucket.Medium,
             highlightedJokesDict
         ),
         LongJokes = GetHighlightedJokesFromGroup(
-            groupedJokes, 
+            groupedJokes,
             Extensions.WordCountBucket.Long,
             highlightedJokesDict
         )
@@ -76,14 +75,12 @@ namespace degreed.Services {
     private List<HighlightedJoke> GetHighlightedJokesFromGroup(
         IDictionary<Extensions.WordCountBucket, List<JokeResult>> groupedJokes,
         Extensions.WordCountBucket bucket,
-        Dictionary<string, HighlightedJoke> highlightedJokesDict)
-    {
-        if (!groupedJokes.ContainsKey(bucket))
-            return new List<HighlightedJoke>();
-
-        return groupedJokes[bucket]
-            .Select(joke => highlightedJokesDict[joke.id])
-            .ToList();
+        Dictionary<string, HighlightedJoke> highlightedJokesDict) {
+      if(!groupedJokes.ContainsKey(bucket))
+        return [];
+      return groupedJokes[bucket]
+          .Select(joke => highlightedJokesDict[joke.id])
+          .ToList();
     }
   }
 }
