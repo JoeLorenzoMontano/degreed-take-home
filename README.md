@@ -17,6 +17,7 @@ The solution consists of three projects:
 - **Highlighting**: Search terms are highlighted in the joke results.
 - **Categorization**: Jokes are categorized by length (short, medium, and long).
 - **Pagination**: Navigate through search results with a paginated interface.
+- **Caching**: Search results are cached for improved performance.
 
 ## Technical Implementation
 
@@ -24,9 +25,11 @@ The solution consists of three projects:
 - **Service Layer**: The `JokeService` provides business logic for joke retrieval and processing.
 - **UI Layer**: Blazor components for displaying jokes with a responsive UI.
 - **Extension Methods**: Utilities for grouping jokes by length and highlighting search terms.
+- **Redis Caching**: Search results are cached in Redis to improve performance and reduce API calls.
 
 ## Recent Updates
 
+- Added Redis caching for search queries to improve performance and reduce API calls
 - Optimized joke highlighting to work only once per joke
 - Added namespace refactoring for better organization
 - Improved search term highlighting to work with word boundaries and multiple words
@@ -53,4 +56,18 @@ The solution consists of three projects:
 - Blazor Server
 - Bootstrap for UI styling
 - HttpClient for API communication
+- Redis for caching search results
 - Docker and Docker Compose for containerization
+
+## Caching with Redis
+
+The application uses Redis as a caching layer to improve performance:
+
+- **Cache Strategy**: Search results are cached for 15 minutes to reduce API calls
+- **Cache Keys**: Generated based on search term, page number, and page size
+- **Fallback Mechanism**: Application works without Redis if it's not available
+- **Redis Configuration**: 
+  - Automatically configured in Docker environment
+  - Local development setup included in appsettings.json
+  - Data persistence enabled with volume mounting
+  - Cache invalidation occurs automatically after 15 minutes
